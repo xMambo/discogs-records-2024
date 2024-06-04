@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discogs Record Search</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .album {
+      position: relative;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .album img {
+      display: block;
+      width: 150px;
+      height: 150px;
+      border-radius: 5px;
+    }
+
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .play-button img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .youtube-player-sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background-color: #fff;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .youtube-player-sidebar iframe {
+      width: 100%;
+      height: calc(100vh - 20px); /* Adjust height for padding */
+      border: none;
+    }
+
+    .youtube-player-sidebar .close-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+  <script>
+    function openYouTubePlayer(link) {
+      const sidebar = document.getElementById('youtube-player-sidebar');
+      const iframe = sidebar.querySelector('iframe');
+      iframe.src = `${link}?autoplay=1`;
+      sidebar.style.display = 'block';
+    }
+
+    function closeYouTubePlayer() {
+      const sidebar = document.getElementById('youtube-player-sidebar');
+      const iframe = sidebar.querySelector('iframe');
+      iframe.src = '';
+      sidebar.style.display = 'none';
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Discogs Record Search</h1>
+    <form action="/search" method="post">
+      <input type="text" name="artist" placeholder="Enter artist name" required>
+      <button type="submit">Search</button>
+    </form>
+    <h2>or</h2>
+    <form action="/collection" method="post">
+      <input type="text" name="username" placeholder="Enter Discogs username" required>
+      <button type="submit">Show Collection</button>
+    </form>
+    <div class="records">
+      <% if (user) { %>
+        <h2>Collection of <%= user %></h2>
+      <% } %>
+      <% if (records.length > 0) { %>
+        <ul>
+          <% records.forEach((record, index) => { %>
+            <li class="album">
+              <img src="<%= record.cover %>" alt="<%= record.title %> cover art">
+              <% if (record.youtubeLink) { %>
+                <div class="play-button" onclick="openYouTubePlayer('<%= record.youtubeLink %>')">
+                  <img src="/play-icon.png" alt="Play">
+                </div>
+              <% } %>
+              <h2><%= record.title %></h2>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p>No records found. Try another search.</p>
+      <% } %>
+    </div>
+  </div>
+  <div id="youtube-player-sidebar" class="youtube-player-sidebar">
+    <span class="close-button" onclick="closeYouTubePlayer()">✖</span>
+    <iframe src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</body>
+</html>
